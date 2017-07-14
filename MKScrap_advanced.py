@@ -11,59 +11,73 @@ import os
 import time  
 import urllib.request
 
-img_url_dic = {}  
-xpath = "/html/body[@class='mk-web']/div[@id='app']/div[@class='app']/div[@class='mk-search-page']/div[@class='search-visible-panel']/section[@id='pageBodyWrapper']/div[@class='panel content-wrapper']/div[@class='result-panel']/div[@class='restricted-content row']/main[@class='medium-12 small-12 large-9 columns result-container panel']/div[@class='medium-12 row panel tile-listing']/ul[@class='product-wrapper product-wrapper-four-tile']//div[@class='product-tile-container']/div[@class='image-panel']/a"
-subXpath = "/html/body[@class='mk-web']/div[@id='app']/div[@class='app']/div[@class='mk-pdp-page']/section[@class='row pdp-main aria-restricted page-body-wrapper page-padding']/div[@class='panel content-wrapper']/section[@class='row pdp-main-content restricted-content']/div[@class='product-img-carousel column small-12 medium-12 large-6']/div[@class='pdp-gallery']/div[@class='pdp-gallery-list']/div[@class='gallery clearfix row']/div[@class='float-right medium-10 large-10 large-offset-2']/div[@class='gallery-images']/a[1]/figure[@class='gallery-images-item']/img"
-browser = webdriver.Chrome("C:\local\chromedriver.exe")
-browser.maximize_window()  
-browser.get('https://www.michaelkors.com/search/_/N-0/Ntt-')
+def browserInit():
+    driver = webdriver.Chrome("C:\local\chromedriver.exe")
+    driver.maximize_window()  
+    return driver
 
-assert "Michael Kors" in browser.title
-elem = browser.find_element_by_id("search-box")
-searchObject = "bag"
-elem.send_keys(searchObject)
-elem.send_keys(Keys.RETURN)
-assert "No results found." not in browser.page_source
-
-# Make dir
-root_dir='C:\\temp\\'
-dir_name=root_dir
-
-if(os.path.exists(root_dir)!=True):
-    os.mkdir(root_dir)
-if(os.path.exists(dir_name)!=True):
-    os.mkdir(dir_name)
-  
-
-# 模拟滚动窗口以浏览下载更多图片  
-pos = 0  
-count = 0 # 图片编号  
-for i in range(10):  
-    pos += i*500 # 每次下滚500  
-    #js = "document.body.scrollTop=%d" % pos  
-    #browser.execute_script(js)    
+def search(mbrowser, searchContent):
+    mbrowser.get('https://www.michaelkors.com/search/_/N-0/Ntt-')
     
-    elements = browser.find_elements_by_xpath(xpath)
-    #for element in elements: 
-    for i in range(len(elements)):
+    _searchContent = searchContent
+    assert "Michael Kors" in mbrowser.title
+    mbrowser.find_element_by_id("search-box").send_keys(_searchContent)
+    mbrowser.find_element_by_id("search-box").send_keys(Keys.RETURN)
+    assert "No results found." not in mbrowser.page_source
+    return _searchContent
+
+def makeDir():
+    dir_name = os.path.abspath(os.curdir) + "\\images\\"
+    if(os.path.exists(dir_name)!=True):
+        os.mkdir(dir_name)
+    return dir_name
+
+def findAndSaveImg(mbrowser, searchContent, dirName):
+    img_url_dic = {}  #crawled img_url
+    thumbnailXpath = "//div[@class='image-panel']/a"
+    fullResImgXpath = "//div[@class='float-right medium-10 large-10 large-offset-2']/div[@class='gallery-images']/a[1]/figure[@class='gallery-images-item']/img"    
+    # 模拟滚动窗口以浏览下载更多图片  
+    pos = 0  
+    count = 0 # 图片编号  
+    for i in range(10):  
+        pos += i*500 # 每次下滚500  
+        #js = "document.body.scrollTop=%d" % pos  
+        #browser.execute_script(js)    
         
-        elements = browser.find_elements_by_xpath(xpath)
-        browser.get(elements[i].get_attribute('href'))
-        
-        image = browser.find_elements_by_xpath(subXpath)
-        img_url = image[0].get_attribute('src')  
-        print("Downloading from..." + img_url)
-        
-        
-        if img_url != None and not img_url in img_url_dic:
-            img_url_dic[img_url] = ''                 #这句直接就把img_url作为一个对象加入了dictionary，内容为”“
-            count+=1 
-            file_name="%s_%s_%s.jpg"%("MKbags", searchObject, count)
-            #保存图片数据  
-            data = urllib.request.urlopen(img_url).read()
-            f = open(root_dir + file_name, 'wb')
-            f.write(data)  
-            f.close() 
-            time.sleep(0.1)
-        browser.back()                               #execute_script("window.history.go(-1)")
-browser.close()
+        elements = mbrowser.find_elements_by_xpath(thumbnailXpath)
+        #for element in elements: 
+        for i in range(len(elements)):
+            
+            elements = mbrowser.find_elements_by_xpath(thumbnailXpath)
+            mbrowser.get(elements[i].get_attribute('href'))
+            
+            image = mbrowser.find_elements_by_xpath(fullResImgXpath)
+            img_url = image[0].get_attribute('src')  
+            
+            if img_url != None and not img_url in img_url_dic:
+                img_url_dic[img_url] = ''                 #这句直接就把img_url作为一个对象加入了dictionary，内容为”“
+                count += 1 
+                
+                img_file = urllib.request.urlopen(img_url)
+                imgbyte=img_file.read()
+                print("Downloading %d" % count , '-'*10 , 'size:' , str(imgbyte.__len__()/1024) , 'KB')   # , 可以连接所有类型
+            
+                file_name="%s_%s_%s.jpg"%("MKbags", searchContent, count)
+                #保存图片数据  
+                data = imgbyte
+                f = open(dirName + file_name, 'wb')
+                f.write(data)  
+                f.close() 
+                time.sleep(0.1)
+            mbrowser.back()                               #execute_script("window.history.go(-1)")
+    print("Download complete!")
+
+
+#=============Main============================
+if __name__ == "__main__":
+    browser = browserInit()
+    searchObj = search(browser, "bag")
+    savedir = makeDir()
+    findAndSaveImg(browser, searchObj, savedir)
+    browser.quit()
+    
