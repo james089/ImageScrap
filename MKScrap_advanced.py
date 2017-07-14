@@ -56,7 +56,7 @@ for i in range(10):
         
         
         if img_url != None and not img_url in img_url_dic:
-            img_url_dic[img_url] = ''                 #? 都没有存img_url到img_url_dic里面是怎么比较的？怎么判别重复url的？
+            img_url_dic[img_url] = ''                 #这句直接就把img_url作为一个对象加入了dictionary，内容为”“
             count+=1 
             file_name="%s_%s_%s.jpg"%("MKbags", searchObject, count)
             #保存图片数据  
