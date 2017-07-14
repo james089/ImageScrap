@@ -26,21 +26,21 @@ def search(mbrowser, searchContent):
     assert "No results found." not in mbrowser.page_source
     return _searchContent
 
-def makeDir():
-    dir_name = os.path.abspath(os.curdir) + "\\images\\"
+def makeDir(searchObj):
+    dir_name = os.path.abspath(os.curdir) + "\\images\\%s\\"%searchObj
     if(os.path.exists(dir_name)!=True):
         os.mkdir(dir_name)
     return dir_name
 
 def findAndSaveImg(mbrowser, searchContent, dirName):
-    img_url_dic = {}  #crawled img_url
+    element_url_dic = {}  #crawled img_url
     thumbnailXpath = "//div[@class='image-panel']/a"
     fullResImgXpath = "//div[@class='float-right medium-10 large-10 large-offset-2']/div[@class='gallery-images']/a[1]/figure[@class='gallery-images-item']/img"    
-    # 模拟滚动窗口以浏览下载更多图片  
+    # Simulate scrolling  
     pos = 0  
-    count = 0 # 图片编号  
+    count = 0 # image count  
     for i in range(10):  
-        pos += i*500 # 每次下滚500  
+        pos += i*500 # scroll down 500  
         #js = "document.body.scrollTop=%d" % pos  
         #browser.execute_script(js)    
         
@@ -49,35 +49,41 @@ def findAndSaveImg(mbrowser, searchContent, dirName):
         for i in range(len(elements)):
             
             elements = mbrowser.find_elements_by_xpath(thumbnailXpath)
-            mbrowser.get(elements[i].get_attribute('href'))
+            element_url = elements[i].get_attribute('href')
             
-            image = mbrowser.find_elements_by_xpath(fullResImgXpath)
-            img_url = image[0].get_attribute('src')  
-            
-            if img_url != None and not img_url in img_url_dic:
-                img_url_dic[img_url] = ''                 #这句直接就把img_url作为一个对象加入了dictionary，内容为”“
-                count += 1 
-                
-                img_file = urllib.request.urlopen(img_url)
-                imgbyte=img_file.read()
-                print("Downloading %d" % count , '-'*10 , 'size:' , str(imgbyte.__len__()/1024) , 'KB')   # , 可以连接所有类型
-            
-                file_name="%s_%s_%s.jpg"%("MKbags", searchContent, count)
-                #保存图片数据  
-                data = imgbyte
-                f = open(dirName + file_name, 'wb')
-                f.write(data)  
-                f.close() 
-                time.sleep(0.1)
-            mbrowser.back()                               #execute_script("window.history.go(-1)")
+            if (element_url != None and not element_url in element_url_dic):
+                element_url_dic[element_url] = ''                 # this add img_url to img_url_dic, set its content to ""
+                mbrowser.get(element_url)
+                img_url = mbrowser.find_elements_by_xpath(fullResImgXpath)[0].get_attribute('src')  
+                #Saving img and other info
+                if img_url != None:
+                    count += 1 
+                    #read item info
+                    itemInfo = {
+                        'name': mbrowser.find_elements_by_xpath("//h1")[0].text.replace(' ', '_'),
+                        'styleName': mbrowser.find_elements_by_xpath("//li[@class='style-name']")[0].text.replace('Style# ', '')
+                    }
+                    #read image data
+                    img_file = urllib.request.urlopen(img_url)
+                    imgbyte=img_file.read()
+                    print("Downloading %d" % count , '-'*10 , 'size:' , str(imgbyte.__len__()/1024) , 'KB')   # , could bind string and int
+                    file_name="%s_%s_%s.jpg"%(count, itemInfo['name'], itemInfo['styleName'])
+                    #Save Image 
+                    data = imgbyte
+                    f = open(dirName + file_name, 'wb')
+                    f.write(data)  
+                    f.close() 
+                    time.sleep(0.1)
+                mbrowser.back()                               #execute_script("window.history.go(-1)")
     print("Download complete!")
 
 
 #=============Main============================
 if __name__ == "__main__":
     browser = browserInit()
-    searchObj = search(browser, "bag")
-    savedir = makeDir()
+    obj_name = input('Input item name: ')
+    searchObj = search(browser, obj_name)
+    savedir = makeDir(obj_name)
     findAndSaveImg(browser, searchObj, savedir)
     browser.quit()
     
