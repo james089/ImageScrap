@@ -8,3 +8,7 @@ Simple Setup GUIDE:
 4. Download chrome driver for selenium to use chrome
 5. Modify chrome driver dir inside the source code
 6. Run this python program
+
+
+Tips:
+The reason to use Selenium is that MK website shows new images while you scroll down the page, without scrolling you can't find all images. Selenium could simulate scrolling.
