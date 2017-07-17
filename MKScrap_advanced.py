@@ -7,14 +7,18 @@ Created on Thu Jul 13 12:23:08 2017
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+import sys
 import os
 import time  
 import urllib.request
 
 def browserInit():
     print ("Browser is loading... please wait...")
-    driverPath = os.path.join(os.path.abspath(os.curdir),"chromedriver")          #mac
-    #driverPath = os.path.join(os.path.abspath(os.curdir),"chromedriver.exe")      #windows
+    driverPath = "";
+    if sys.platform == "darwin":
+        driverPath = os.path.join(os.path.abspath(os.curdir),"chromedriver")          #mac
+    elif sys.platform == "win32" or sys.platform == "win64":
+        driverPath = os.path.join(os.path.abspath(os.curdir),"chromedriver.exe")      #windows
     driver = webdriver.Chrome(driverPath)
     driver.maximize_window()  
     return driver
