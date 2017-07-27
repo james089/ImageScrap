@@ -50,7 +50,8 @@ def findAndSaveImg(mbrowser, searchContent, dirName):
     count = 0 # image count  
     for i in range(10):  
         pos += i*500 # scroll down 500  
-        js = "document.body.scrollTop=%d" % pos  
+        js = "document.body.scrollTop=%d" % pos
+        #js = "window.scrollTo(0, document.body.scrollHeight)"
         mbrowser.execute_script(js)    
         
         elements = mbrowser.find_elements_by_xpath(thumbnailXpath)
