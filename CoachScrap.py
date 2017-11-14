@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Jul 13 12:23:08 2017
+Created on Thu Jul 27 12:23:08 2017
 
 @author: bojun.lin
 """
@@ -24,14 +24,14 @@ def browserInit():
     return driver
 
 def search(mbrowser, searchContent):
-    mbrowser.get('https://www.michaelkors.com/search/_/N-0/Ntt-')
+    mbrowser.get('http://www.coach.com/shop/women-handbags')
     
     _searchContent = searchContent
-    assert "Michael Kors" in mbrowser.title
+    #assert "Michael Kors" in mbrowser.title
     print ("Searching",searchContent, "...")
-    mbrowser.find_element_by_id("search-box").send_keys(_searchContent)
-    mbrowser.find_element_by_id("search-box").send_keys(Keys.RETURN)
-    assert "No results found." not in mbrowser.page_source
+    #mbrowser.find_element_by_id("search-box").send_keys(_searchContent)
+    #mbrowser.find_element_by_id("search-box").send_keys(Keys.RETURN)
+    #assert "No results found." not in mbrowser.page_source
     return _searchContent
 
 def makeDir(searchObj):
@@ -43,7 +43,7 @@ def makeDir(searchObj):
 
 def findAndSaveImg(mbrowser, searchContent, dirName):
     image_url_dic = {}  #crawled img_url
-    thumbnailXpath = "//div[@class='image-panel']/a/div[@class='product-image-container']/div[@class='LazyLoad is-visible']/img[@class='product-image']"
+    thumbnailXpath = "//a[@class='thumb-link thumbnail']/img[@class='primary-image']"
     # Simulate scrolling  
     pos = 0  
     count = 0 # image count  

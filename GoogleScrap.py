@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Jul 13 12:23:08 2017
+Created on Fri Jul 28 10:57:41 2017
 
 @author: bojun.lin
 """
+
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -24,13 +25,13 @@ def browserInit():
     return driver
 
 def search(mbrowser, searchContent):
-    mbrowser.get('https://www.michaelkors.com/search/_/N-0/Ntt-')
+    mbrowser.get('https://www.google.com/imghp')
     
     _searchContent = searchContent
-    assert "Michael Kors" in mbrowser.title
+    assert "Google Images" in mbrowser.title
     print ("Searching",searchContent, "...")
-    mbrowser.find_element_by_id("search-box").send_keys(_searchContent)
-    mbrowser.find_element_by_id("search-box").send_keys(Keys.RETURN)
+    mbrowser.find_element_by_id("lst-ib").send_keys(_searchContent)
+    mbrowser.find_element_by_id("lst-ib").send_keys(Keys.RETURN)
     assert "No results found." not in mbrowser.page_source
     return _searchContent
 
@@ -42,55 +43,37 @@ def makeDir(searchObj):
     return dir_name
 
 def findAndSaveImg(mbrowser, searchContent, dirName):
-    element_url_dic = {}  #crawled img_url
-    thumbnailXpath = "//div[@class='image-panel']/a"
-    fullResImgHolderXpath = "//div[@class='float-right medium-10 large-10 large-offset-2']/div[@class='gallery-images']/a[1]/figure[@class='gallery-images-item']/img"    
+    image_url_dic = {}  #crawled img_url
+    thumbnailXpath = "//img[@class='rg_ic rg_i']"
     # Simulate scrolling  
-    #pos = 0  
+    pos = 0  
     count = 0 # image count  
-    #for i in range(10):  
+    for i in range(10):  
         #pos += i*500 # scroll down 500  
         #js = "document.body.scrollTop=%d" % pos
-    js = "window.scrollTo(0, document.body.scrollHeight)"
-    mbrowser.execute_script(js)    
-    
-    elements = mbrowser.find_elements_by_xpath(thumbnailXpath)
-    #for element in elements: 
-    for i in range(len(elements)):
+        js = "window.scrollTo(0, document.body.scrollHeight)"
+        mbrowser.execute_script(js)   
+        time.sleep(3) 
         
-        elements = mbrowser.find_elements_by_xpath(thumbnailXpath)
-        element_url = elements[i].get_attribute('href')
+        imageHolders = mbrowser.find_elements_by_xpath(thumbnailXpath)
         
-        if (element_url != None and not element_url in element_url_dic):
-            element_url_dic[element_url] = ''                 # this add img_url to img_url_dic, set its content to ""
-            mbrowser.get(element_url)                         # enter thumbnail, into new page
-            
-            img_holder = mbrowser.find_elements_by_xpath(fullResImgHolderXpath)
-            j = 0
-            for imgdf in img_holder:
-                j+=1
-                
-            if img_holder != None and j >= 1:
-                img_url = img_holder[0].get_attribute('src')
-                #Saving img and other info
+        for imgHolder in imageHolders:  
+            img_url = imgHolder.get_attribute('src')
+            if (img_url != None and not img_url in image_url_dic):
                 count += 1 
-                #read item info
-                itemInfo = {
-                    'name': mbrowser.find_elements_by_xpath("//h1")[0].text.replace(' ', '_'),
-                    'styleName': mbrowser.find_elements_by_xpath("//li[@class='style-name']")[0].text.replace('Style# ', '')
-                }
+                image_url_dic[img_url] = ''                 # this add img_url to img_url_dic, set its content to ""
+
                 #read image data
                 img_data = urllib.request.urlopen(img_url).read()
                 print("Downloading %d" % count , '-'*10 , 'size:' , str(img_data.__len__()/1024) , 'KB')   # , could bind string and int
-                file_name="%s_%s_%s.jpg"%(count, itemInfo['name'], itemInfo['styleName'])
+                file_name="pic%s.jpg"%(count)
                 #Save Image 
                 f = open(os.path.join(dirName, file_name), 'wb')
                 f.write(img_data)  
                 f.close() 
                 time.sleep(0.1)
-            else:
-                 print('No image found')  
-            mbrowser.back()                               
+            #else:
+                 #print('No image found')                           
     print("Download complete!")
 
 
