@@ -2,7 +2,7 @@
 Scrapping images from website, using selenium to navigate website
 
 Simple Setup GUIDE:
-1. Anaconda for Python 3.6 (graphiccal) https://www.continuum.io/downloads#macos
+1. Anaconda for Python 3.6 (graphical) https://www.continuum.io/downloads#macos
 2. Open Terminal in MacOS, type "source activate root" to activate the default python 3.6 environment
 3. In terminal, type "pip install selenium"
 4. Open Anaconda, launch Spyder, load ImageScrap_advanced.py, and run it (or just use terminal and find the location of it, use "python ImageScrap_advanced.py" to run it)
