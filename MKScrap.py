@@ -71,8 +71,8 @@ def findAndSaveImg(mbrowser, searchContent, dirName):
                 f.write(img_data)  
                 f.close() 
                 time.sleep(0.1)
-            #else:
-                 #print('No image found')                           
+            else:
+                 print('No image found')
     print("Download complete!")
 
 
