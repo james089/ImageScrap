@@ -43,8 +43,9 @@ def makeDir(searchObj):
 
 def findAndSaveImg(mbrowser, searchContent, dirName):
     image_url_dic = {}  #crawled img_url
-    thumbnailXpath = "//div[@class='image-panel']/a/div[@class='product-image-container']/div[@class='LazyLoad is-visible']/img[@class='product-image']"
-    # Simulate scrolling  
+    #thumbnailXpath = "//div[@class='image-panel']/a/div[@class='product-image-container']/div[@class='LazyLoad is-visible']/img[@class='product-image']"
+    thumbnailXpath = "//img[@class='product-image mouseFocusUnActive']"
+    # Simulate scrolling
     pos = 0  
     count = 0 # image count  
     for i in range(10):  
@@ -55,7 +56,7 @@ def findAndSaveImg(mbrowser, searchContent, dirName):
         time.sleep(3) 
         
         imageHolders = mbrowser.find_elements_by_xpath(thumbnailXpath)
-        
+        #imageHolders = mbrowser.find_element_by_class_name("product-image mouseFocusUnActive")
         for imgHolder in imageHolders:  
             img_url = imgHolder.get_attribute('src')
             if (img_url != None and not img_url in image_url_dic):
