@@ -25,13 +25,16 @@ def browserInit():
     return driver
 
 def search(mbrowser, searchContent):
-    mbrowser.get('https://www.google.com/imghp')
-    
+
     _searchContent = searchContent
-    assert "Google Images" in mbrowser.title
-    print ("Searching",searchContent, "...")
-    mbrowser.find_element_by_id("lst-ib").send_keys(_searchContent)
-    mbrowser.find_element_by_id("lst-ib").send_keys(Keys.RETURN)
+    url = "https://www.google.com/search?q=" + _searchContent + "&source=lnms&tbm=isch";
+    mbrowser.get(url)
+
+    #assert "Google Images" in mbrowser.title
+    print ("Searching",_searchContent, "...")
+    #mbrowser.find_element_by_id("lst-ib").send_keys(_searchContent)
+    #mbrowser.find_element_by_id("lst-ib").send_keys(Keys.RETURN)
+
     assert "No results found." not in mbrowser.page_source
     return _searchContent
 
@@ -44,7 +47,8 @@ def makeDir(searchObj):
 
 def findAndSaveImg(mbrowser, searchContent, dirName):
     image_url_dic = {}  #crawled img_url
-    thumbnailXpath = "//img[@class='rg_ic rg_i']"
+    #thumbnailXpath = "//img[@class='rg_ic rg_i']"
+    thumbnailXpath = "//img[@class ='rg_i Q4LuWd tx8vtf']"
     # Simulate scrolling  
     pos = 0  
     count = 0 # image count  
@@ -65,15 +69,15 @@ def findAndSaveImg(mbrowser, searchContent, dirName):
 
                 #read image data
                 img_data = urllib.request.urlopen(img_url).read()
-                print("Downloading %d" % count , '-'*10 , 'size:' , str(img_data.__len__()/1024) , 'KB')   # , could bind string and int
-                file_name="pic%s.jpg"%(count)
+                print("Downloading pic %d ------ " % count + "size: %0.2f" % (img_data.__len__()/1024) + 'KB')
+                file_name = "pic%s.jpg" % count
                 #Save Image 
                 f = open(os.path.join(dirName, file_name), 'wb')
                 f.write(img_data)  
                 f.close() 
                 time.sleep(0.1)
-            #else:
-                 #print('No image found')                           
+            # else:
+            #      print('No image found')
     print("Download complete!")
 
 
