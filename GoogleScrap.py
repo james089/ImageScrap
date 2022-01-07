@@ -17,11 +17,11 @@ def browserInit():
     print ("Browser is loading... please wait...")
     driverPath = "";
     if sys.platform == "darwin":
-        driverPath = os.path.join(os.path.abspath(os.curdir),"chromedriver")          #mac
+        driverPath = os.path.join(os.path.abspath(os.curdir),"chromedriver")          #mac m1
     elif sys.platform == "win32" or sys.platform == "win64":
         driverPath = os.path.join(os.path.abspath(os.curdir),"chromedriver.exe")      #windows
     driver = webdriver.Chrome(driverPath)
-    driver.maximize_window()  
+    driver.maximize_window() 
     return driver
 
 def search(mbrowser, searchContent):
@@ -47,8 +47,10 @@ def makeDir(searchObj):
 
 def findAndSaveImg(mbrowser, searchContent, dirName):
     image_url_dic = {}  #crawled img_url
-    #thumbnailXpath = "//img[@class='rg_ic rg_i']"
-    thumbnailXpath = "//img[@class ='rg_i Q4LuWd tx8vtf']"
+    # thumbnailXpath = "//img[@class='rg_ic rg_i']"
+    # thumbnailXpath = "//img[@class ='rg_i Q4LuWd tx8vtf']"
+    thumbnailXpath = "//img[@class='rg_i Q4LuWd']"
+    className = "rg_i Q4LuWd"
     # Simulate scrolling  
     pos = 0  
     count = 0 # image count  
@@ -59,8 +61,17 @@ def findAndSaveImg(mbrowser, searchContent, dirName):
         mbrowser.execute_script(js)   
         time.sleep(3) 
         
-        imageHolders = mbrowser.find_elements_by_xpath(thumbnailXpath)
+        imageHolders = mbrowser.find_element_by_xpath(thumbnailXpath)
+        # img_url = imageHolders.get_attribute('src')
+        # img_data = urllib.request.urlopen(img_url).read()
+        # print("Downloading pic %d ------ " % count + "size: %0.2f" % (img_data.__len__()/1024) + 'KB')
+        # file_name = "pic%s.jpg" % count
+        # #Save Image 
+        # f = open(os.path.join(dirName, file_name), 'wb')
+        # f.write(img_data)  
+        # f.close() 
         
+        # imageHolders = mbrowser.find_element_by_class_name(className)
         for imgHolder in imageHolders:  
             img_url = imgHolder.get_attribute('src')
             if (img_url != None and not img_url in image_url_dic):
