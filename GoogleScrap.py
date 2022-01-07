@@ -15,7 +15,7 @@ import urllib.request
 
 def browserInit():
     print ("Browser is loading... please wait...")
-    driverPath = "";
+    driverPath = ""
     if sys.platform == "darwin":
         driverPath = os.path.join(os.path.abspath(os.curdir),"chromedriver")          #mac m1
     elif sys.platform == "win32" or sys.platform == "win64":
